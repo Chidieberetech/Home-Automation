@@ -1,2 +1,2 @@
-# House-Automation
+# Homw-Automation
 Using Python and AWS
