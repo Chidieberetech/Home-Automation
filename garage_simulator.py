@@ -42,7 +42,7 @@ class GarageSimulator:
     def setup_aws_iot_connection(self):
         """Setup AWS IoT connection using the official AWS SDK"""
         try:
-            # Validate certificate files exist
+            # Validate certificate files exist with correct names
             cert_files = ['root-CA.crt', 'GarageController.cert.pem', 'GarageController.private.key']
             for cert_file in cert_files:
                 if not os.path.exists(cert_file):
@@ -51,9 +51,9 @@ class GarageSimulator:
                     return
 
             print("Setting up AWS IoT Device SDK connection...")
-            print("⚠️ Note: If connection fails, check AWS IoT Thing policies and certificate attachment")
+            print(" Note: If connection fails, check AWS IoT Thing policies and certificate attachment")
 
-            # Build MQTT connection using AWS SDK
+            # Build MQTT connection using AWS SDK with correct certificate files
             self.mqtt_connection = mqtt_connection_builder.mtls_from_path(
                 endpoint=garage_config.IOT_ENDPOINT,
                 cert_filepath='GarageController.cert.pem',
@@ -93,7 +93,7 @@ class GarageSimulator:
     def setup_paho_mqtt_connection(self):
         """Fallback to paho-mqtt with multiple SSL configurations"""
         try:
-            # Validate certificate files exist
+            # Validate certificate files exist with correct names
             cert_files = ['root-CA.crt', 'GarageController.cert.pem', 'GarageController.private.key']
             for cert_file in cert_files:
                 if not os.path.exists(cert_file):
@@ -109,7 +109,7 @@ class GarageSimulator:
             self.client.on_message = self.on_message
             self.client.on_disconnect = self.on_disconnect
 
-            # Try multiple SSL configurations
+            # Try multiple SSL configurations with correct certificate files
             ssl_configs = [
                 # Config 1: Basic SSL with insecure mode
                 {

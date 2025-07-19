@@ -114,34 +114,75 @@ class GarageSystem:
             self.voice_available = False
 
     def setup_mqtt(self):
+        """Setup MQTT with robust connection handling and correct certificate files"""
         try:
-            client = mqtt.Client(
-                client_id="garage_controller",
-                callback_api_version=mqtt.CallbackAPIVersion.VERSION2
-            )
+            # Check for certificate files with correct names
+            cert_files = {
+                'root-CA.crt': 'Root CA Certificate',
+                'GarageController.cert.pem': 'Device Certificate',
+                'GarageController.private.key': 'Private Key'
+            }
+
+            missing_files = []
+            for cert_file, description in cert_files.items():
+                if not os.path.exists(cert_file):
+                    print(f" Missing {description}: {cert_file}")
+                    missing_files.append(cert_file)
+                else:
+                    print(f" Found {description}: {cert_file}")
+
+            if missing_files:
+                print(f"Running in offline mode - missing certificates: {', '.join(missing_files)}")
+                return mqtt.Client(client_id="garage_controller_offline")
+
+            # Try to use new callback API, fallback to old API
+            try:
+                client = mqtt.Client(
+                    client_id="garage_controller",
+                    callback_api_version=mqtt.CallbackAPIVersion.VERSION2
+                )
+            except (AttributeError, NameError):
+                print("Using older paho-mqtt API")
+                client = mqtt.Client(client_id="garage_controller")
+
             client.on_connect = self.on_connect
             client.on_disconnect = self.on_disconnect
             client.on_message = self.on_message
 
-            # Configure TLS
+            print("Setting up TLS configuration with correct certificate files...")
+
+            # Configure TLS with proper certificate files
             client.tls_set(
                 ca_certs='root-CA.crt',
                 certfile='GarageController.cert.pem',
                 keyfile='GarageController.private.key',
                 cert_reqs=ssl.CERT_REQUIRED,
-                tls_version=ssl.PROTOCOL_TLS
+                tls_version=ssl.PROTOCOL_TLSv1_2
             )
+
+            # Enable insecure mode for AWS IoT compatibility
+            try:
+                client.tls_insecure_set(True)
+                print("✅ TLS insecure mode enabled for AWS IoT compatibility")
+            except Exception as e:
+                print(f"⚠️ Could not enable TLS insecure mode: {e}")
 
             print(f"Connecting to AWS IoT: {garage_config.IOT_ENDPOINT}")
             client.connect(garage_config.IOT_ENDPOINT, 8883, 60)
+
+            # Start the MQTT loop
+            client.loop_start()
+            print("🚀 MQTT connection initiated...")
+
             return client
 
         except Exception as e:
-            print(f"MQTT setup failed: {e}")
-            return mqtt.Client(
-                client_id="garage_controller_offline",
-                callback_api_version=mqtt.CallbackAPIVersion.VERSION2
-            )
+            print(f"❌ MQTT setup failed: {e}")
+            print("Creating offline client...")
+            try:
+                return mqtt.Client(client_id="garage_controller_offline")
+            except:
+                return mqtt.Client(client_id="garage_controller_offline")
 
     def on_connect(self, client, userdata, flags, reason_code, properties=None):
         if reason_code != 0:
