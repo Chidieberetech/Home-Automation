@@ -3,6 +3,8 @@ paho-mqtt
 boto3
 botocore
 awsiotsdk
+awscrt
+awsiot
 
 # Computer Vision and Image Processing
 opencv-python
