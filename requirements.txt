@@ -1,0 +1,33 @@
+# Core MQTT and AWS libraries
+paho-mqtt==1.6.1
+boto3==1.34.131
+botocore==1.34.131
+awsiotsdk==1.21.0
+
+# Computer Vision and Image Processing
+opencv-python==4.8.1.78
+opencv-contrib-python==4.8.1.78
+numpy==1.24.3
+Pillow==10.0.0
+
+# Audio and Speech Recognition
+pyaudio==0.2.11
+SpeechRecognition==3.10.0
+pocketsphinx==5.0.0
+
+# Game Development (for simulator)
+pygame==2.5.2
+
+# AWS SDK extensions
+awscli==1.32.101
+
+# Security and SSL
+cryptography==41.0.3
+pyOpenSSL==23.2.0
+
+# System utilities
+psutil==5.9.5
+requests==2.31.0
+
+# Development and debugging
+python-dotenv==1.0.0

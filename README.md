@@ -1,95 +1,199 @@
-# House Automation System
+# Garage Door Control System
 
-A comprehensive home automation system focusing on garage door control using Python, AWS services, and IoT technologies.
+This project implements a smart garage door control system with multiple input methods, cloud integration, and a real-time simulator.
 
-## Project Overview
+## System Overview
 
-This project implements a smart garage door system with the following features:
+The garage door control system provides multiple ways to control your garage door:
+- License plate recognition via camera
+- Voice commands
+- Remote control via MQTT messages
+- Manual control through the simulator
 
-- Automated garage door control via MQTT
-- License plate recognition for authorized vehicle access
-- Motion detection for security
-- Voice command recognition
-- Simulation interface for testing and demonstration
+The system consists of two main components:
+1. **Main Controller** - The core system that processes inputs and controls the door
+2. **Simulator** - A visual representation of the garage door with real-time status updates
 
-## Components
+## Key Features
 
-### 1. Garage System (garage_system.py)
+- **Multi-Modal Control**:
+  - Automatic license plate recognition
+  - Voice command processing
+  - Remote control via MQTT
+  - Manual control in simulator
 
-The main controller that handles:
-- Camera monitoring and motion detection
-- License plate recognition using AWS Rekognition
-- Voice command processing
-- MQTT communication with AWS IoT Core
-- Automatic door closing after 2-minute timeout
+- **Security**:
+  - Token-based authentication
+  - AWS Rekognition for plate recognition
+  - DynamoDB for authorized plates storage
 
-### 2. Garage Simulator (garage_simulator.py)
+- **Cloud Integration**:
+  - AWS IoT Core for MQTT communication
+  - AWS Rekognition for license plate recognition
+  - DynamoDB for authorized plates database
 
-A PyGame-based visual simulator that:
-- Displays the garage door state (open/closed)
-- Animates the door movement
-- Connects to the same MQTT topics for real-time updates
+- **Real-time Visualization**:
+  - PyGame-based simulator
+  - Smooth door animation
+  - Connection status monitoring
 
 ## Prerequisites
 
-- Python 3.7+
-- AWS account with the following services configured:
-  - AWS IoT Core
-  - AWS Secrets Manager
-  - AWS Rekognition
-  - DynamoDB
-- Required Python packages:
-  ```
-  opencv-python
-  pyaudio
-  SpeechRecognition
-  paho-mqtt
-  boto3
-  pygame
-  ```
+1. **Hardware**:
+   - Raspberry Pi or similar device
+   - Logitech C720 webcam (or compatible)
+   - Microphone for voice commands
 
-## Setup Instructions
+2. **Software**:
+   - Python 3.8+
+   - Required Python packages (install via `pip install -r requirements.txt`)
 
-1. Clone this repository
-2. Install required packages:
+3. **AWS Services**:
+   - AWS IoT Core (for MQTT communication)
+   - AWS Rekognition (for license plate recognition)
+   - DynamoDB (for authorized plates storage)
+
+4. **Security Certificates**:
+   - AWS IoT certificates (`root-CA.crt`, `certificate.pem.crt`, `private.pem.key`)
+
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/garage-control-system.git
+   cd garage-control-system
    ```
+
+2. Install dependencies:
+   ```bash
    pip install -r requirements.txt
    ```
-3. Configure AWS services:
-   - Create a DynamoDB table for license plate whitelist
-   - Set up AWS IoT Core and download certificates
-   - Store credentials in AWS Secrets Manager
 
-4. Place AWS IoT certificates in the project directory:
-   - root-CA.pem
-   - certificate.pem
-   - private.key
+3. Configure AWS credentials:
+   - Create a `garage_config.py` file with your AWS credentials:
+     ```python
+     # AWS Credentials
+     AWS_ACCESS_KEY_ID = 'your-access-key'
+     AWS_SECRET_ACCESS_KEY = 'your-secret-key'
+     AWS_REGION = 'your-region'
+     
+     # IoT Core Endpoint
+     IOT_ENDPOINT = 'your-iot-endpoint'
+     
+     # Security Token
+     SECRET_TOKEN = 'your-secure-token'
+     
+     # DynamoDB Table
+     AUTHORIZED_PLATES_TABLE = 'AuthorizedPlates'
+     ```
 
-5. Update the IoT endpoint in garage_simulator.py with your AWS IoT endpoint
+4. Place your AWS IoT certificates in the project directory:
+   - `root-CA.crt`
+   - `certificate.pem.crt`
+   - `private.pem.key`
 
-## Usage
+## Running the System
 
-1. Start the garage system:
-   ```
-   python garage_system.py
-   ```
+### Starting the Main Controller
+```bash
+python garage_controller.py
+```
 
-2. Start the simulator in a separate terminal:
-   ```
-   python garage_simulator.py
-   ```
+### Starting the Simulator (automatically launched by controller)
+```bash
+python garage_simulator.py
+```
 
-3. Control methods:
-   - Voice commands ("close garage")
-   - Authorized vehicle detection
-   - MQTT messages to "garage/control" topic
+The controller will automatically launch the simulator. Both components can also be run separately for testing.
 
-## Security Features
+## System Controls
 
-- Token-based authentication for MQTT commands
-- License plate whitelist validation
-- Credentials stored securely in AWS Secrets Manager
+### Main Controller Controls
+- **`p`** - Toggle camera preview
+- **`q`** - Quit the application
+
+### Simulator Controls
+- **`O`** - Open garage door
+- **`C`** - Close garage door
+- **`ESC`** - Exit simulator
+
+## Voice Commands
+The system responds to natural language commands:
+- "Open garage"
+- "Close garage"
+- "Shut garage"
+
+## MQTT Integration
+The system uses MQTT for communication:
+- **Subscribes to**: `garage/control`
+- **Publishes to**: `garage/state`
+
+### Message Format
+```json
+{
+  "command": "open/close",
+  "token": "your-secure-token"
+}
+```
+
+## Security Considerations
+
+1. **Token Authentication**: All commands require a valid security token
+2. **TLS Encryption**: MQTT communication uses TLS 1.2 encryption
+3. **Limited Permissions**: AWS credentials should have only necessary permissions
+4. **Secure Storage**: Secrets should be stored in environment variables or secure config files
+
+## Troubleshooting
+
+### Common Issues
+1. **Camera not detected**:
+   - Ensure camera is properly connected
+   - Try different USB ports
+   - Check camera permissions
+
+2. **MQTT Connection Issues**:
+   - Verify certificate files exist
+   - Check AWS IoT policy permissions
+   - Ensure correct endpoint in configuration
+
+3. **Voice Recognition Problems**:
+   - Check microphone connection
+   - Reduce background noise
+   - Speak clearly and close to microphone
+
+### Logging
+Both components output detailed logs to console for debugging purposes.
+
+## Architecture Diagram
+
+```
++----------------+     +-----------------+     +-------------+
+|                |     |                 |     |             |
+|  Camera Input  +---->+                 |     |  AWS        |
+|                |     |                 +---->+  Rekognition|
++----------------+     |                 |     |             |
+                       |                 |     +-------------+
++----------------+     |                 |           |
+|                |     |                 |           v
+|  Voice Input   +---->+  Main Controller+     +-------------+
+|                |     |                 +---->+  DynamoDB   |
++----------------+     |                 |     |             |
+                       |                 |     +-------------+
++----------------+     |                 |           |
+|                |     |                 |           v
+|  MQTT Messages +---->+                 |     +-------------+
+|                |     |                 +---->+  Simulator  |
++----------------+     +--------+--------+     |             |
+                                |              +-------------+
+                                |                    ^
+                                |                    |
+                                +--------------------+
+```
 
 ## License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request.
