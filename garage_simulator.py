@@ -81,10 +81,10 @@ class GarageSimulator:
     def check_connection_timeout(self):
         """Check if connection took too long and provide helpful message"""
         if not self.connected:
-            print("⏱️ Connection taking longer than expected...")
+            print("Connection taking longer than expected...")
             print("This usually indicates an AWS IoT policy or certificate issue.")
             print("Running in OFFLINE mode - manual controls still work!")
-            print("\n🔧 To fix AWS IoT connection:")
+            print("\nTo fix AWS IoT connection:")
             print("1. Check that your IoT Thing policy allows iot:Connect, iot:Publish, iot:Subscribe")
             print("2. Verify the certificate is attached to your Thing")
             print("3. Ensure your Thing name is 'GarageController'")
@@ -164,7 +164,7 @@ class GarageSimulator:
         """Callback for AWS IoT SDK connection result"""
         try:
             connect_future.result()
-            print("✅ AWS IoT connection successful!")
+            print("AWS IoT connection successful!")
             self.connected = True
 
             # Subscribe to garage state topic
@@ -196,7 +196,7 @@ class GarageSimulator:
             self.connected = False
             return
 
-        print("✅ Paho-MQTT connection successful!")
+        print("Paho-MQTT connection successful!")
         self.connected = True
         client.subscribe("garage/state")
         print("Subscribed to garage/state topic")
