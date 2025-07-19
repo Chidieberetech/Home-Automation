@@ -274,19 +274,19 @@ class GarageSimulator:
         status = "OPEN" if self.door_open else "CLOSED"
         color = (50, 200, 50) if self.door_open else (220, 50, 50)
         text = font.render(f"GARAGE: {status}", True, color)
-        self.screen.blit(text, (180, 20))
+        self.screen.blit(text, (250, 15))
 
         # Connection status
         status_font = pygame.font.SysFont(None, 28)
         conn_status = "CONNECTED" if self.connected else "OFFLINE"
         conn_color = (50, 200, 50) if self.connected else (220, 50, 50)
         conn_text = status_font.render(f"MQTT: {conn_status}", True, conn_color)
-        self.screen.blit(conn_text, (20, 20))
+        self.screen.blit(conn_text, (10, 15))
 
         # Instructions
         instr_font = pygame.font.SysFont(None, 24)
         instr_text = instr_font.render("Press O to Open, C to Close, ESC to Exit", True, (180, 180, 200))
-        self.screen.blit(instr_text, (20, 50))
+        self.screen.blit(instr_text, (10, 55))
 
         # Door position indicator
         pos_text = status_font.render(f"Position: {400 - self.door_height}/400", True, (200, 200, 220))
