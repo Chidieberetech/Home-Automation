@@ -163,21 +163,21 @@ class GarageSystem:
             # Enable insecure mode for AWS IoT compatibility
             try:
                 client.tls_insecure_set(True)
-                print("✅ TLS insecure mode enabled for AWS IoT compatibility")
+                print(" TLS insecure mode enabled for AWS IoT compatibility")
             except Exception as e:
-                print(f"⚠️ Could not enable TLS insecure mode: {e}")
+                print(f" Could not enable TLS insecure mode: {e}")
 
             print(f"Connecting to AWS IoT: {garage_config.IOT_ENDPOINT}")
             client.connect(garage_config.IOT_ENDPOINT, 8883, 60)
 
             # Start the MQTT loop
             client.loop_start()
-            print("🚀 MQTT connection initiated...")
+            print(" MQTT connection initiated...")
 
             return client
 
         except Exception as e:
-            print(f"❌ MQTT setup failed: {e}")
+            print(f" MQTT setup failed: {e}")
             print("Creating offline client...")
             try:
                 return mqtt.Client(client_id="garage_controller_offline")
